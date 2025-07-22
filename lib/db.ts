@@ -131,16 +131,12 @@ export const umkmService = {
           data = await sql`SELECT * FROM umkm WHERE user_id = ANY(${userIds}::uuid[]) ORDER BY created_at DESC`
         }
       } else if (userId && isValidUUID(userId)) {
-        data = await sql`SELECT * FROM umkm WHERE user_id = ${userId} ORDER BY created_at DESC`
-      } else {
-        // If no specific user or admin context, return empty
-        return []
+        data = await sql`SELECT * FROM umkm WHERE user_id = ${userId}`
       }
-      return data as UMKM[]
+      return data
     } catch (error) {
       console.error("Neon error in getAll:", error)
-      // Fallback ke localStorage
-      return ls.all()
+      return []
     }
   },
 
@@ -301,10 +297,6 @@ export const umkmService = {
       const sql = getDbClient()
       let data: UMKM[] = []
       if (userId && isValidUUID(userId)) {
-        // Validate UUID format only when Neon (Postgres) is used.
-        if (hasNeon && !isValidUUID(userId)) {
-          throw new Error("User ID tidak valid")
-        }
         data = await sql`SELECT * FROM umkm WHERE id = ${id} AND user_id = ${userId}`
       } else {
         data = await sql`SELECT * FROM umkm WHERE id = ${id}`
